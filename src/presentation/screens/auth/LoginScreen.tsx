@@ -1,11 +1,17 @@
-import {Button, Input, Layout, Text} from '@ui-kitten/components';
 import React from 'react';
 import {useWindowDimensions} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
-import {CustomIcon} from '../../components/ui/CustomIcon';
+import {Button, Input, Layout, Text} from '@ui-kitten/components';
+import {StackScreenProps} from '@react-navigation/stack';
 
-export const LoginScreen = () => {
+import {CustomIcon} from '../../components/ui/CustomIcon';
+import {RootStackParams} from '../../router/StackNavigator';
+
+interface Props extends StackScreenProps<RootStackParams, 'LoginScreen'> {}
+
+export const LoginScreen = ({navigation}: Props) => {
   const {height} = useWindowDimensions();
+
   return (
     <Layout style={{flex: 1}}>
       <ScrollView style={{marginHorizontal: 40}}>
@@ -50,7 +56,7 @@ export const LoginScreen = () => {
             status="primary"
             category="s1"
             style={{color: 'blue'}}
-            onPress={() => {}}>
+            onPress={() => navigation.navigate('RegisterScreen')}>
             Register now
           </Text>
         </Layout>
