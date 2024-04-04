@@ -1,16 +1,40 @@
-import React from 'react';
-import {useWindowDimensions} from 'react-native';
+import React, {useState} from 'react';
+import {ActivityIndicator, Alert, useWindowDimensions} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {Button, Input, Layout, Text} from '@ui-kitten/components';
 import {StackScreenProps} from '@react-navigation/stack';
 
 import {CustomIcon} from '../../components/ui/CustomIcon';
 import {RootStackParams} from '../../router/StackNavigator';
+import {useAuthStore} from '../../store/auth/useAuthStore';
 
 interface Props extends StackScreenProps<RootStackParams, 'LoginScreen'> {}
 
 export const LoginScreen = ({navigation}: Props) => {
+  const {login} = useAuthStore();
+
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
+
   const {height} = useWindowDimensions();
+
+  const onLogin = async () => {
+    if (form.email.length === 0 || form.password.length === 0) {
+      return;
+    }
+    setIsLoading(true);
+    const wasSuccessful = await login(form.email, form.password);
+    setIsLoading(false);
+
+    if (wasSuccessful) {
+      return;
+    }
+    Alert.alert('Error', 'Incorrect credentials. Please, try again');
+  };
 
   return (
     <Layout style={{flex: 1}}>
@@ -27,6 +51,8 @@ export const LoginScreen = ({navigation}: Props) => {
             placeholder="Email"
             keyboardType="email-address"
             autoCapitalize="none"
+            value={form.email}
+            onChangeText={email => setForm({...form, email})}
             accessoryLeft={<CustomIcon name="email-outline" />}
             style={{marginBottom: 10}}
           />
@@ -35,6 +61,8 @@ export const LoginScreen = ({navigation}: Props) => {
             placeholder="Password"
             secureTextEntry
             autoCapitalize="none"
+            value={form.password}
+            onChangeText={password => setForm({...form, password})}
             accessoryLeft={<CustomIcon name="lock-outline" />}
             style={{marginBottom: 10}}
           />
@@ -44,9 +72,14 @@ export const LoginScreen = ({navigation}: Props) => {
 
         <Layout>
           <Button
-            accessoryRight={<CustomIcon name="arrow-forward-outline" isWhite />}
-            onPress={() => {}}>
-            Log In
+            accessoryRight={
+              !isLoading ? (
+                <CustomIcon name="arrow-forward-outline" isWhite />
+              ) : undefined
+            }
+            disabled={isLoading}
+            onPress={onLogin}>
+            {isLoading ? <ActivityIndicator /> : 'Log In'}
           </Button>
         </Layout>
 
