@@ -22,7 +22,7 @@ export const HomeScreen = () => {
       const products = await getProductsByPage(pageParam);
 
       products.forEach(product => {
-        queryClient.setQueryData(['products', product.id], product);
+        queryClient.setQueryData(['product', product.id], product);
       });
 
       return products;

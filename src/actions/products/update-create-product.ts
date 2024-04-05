@@ -3,11 +3,11 @@ import {tesloApi} from '../../config/api/tesloApi';
 import {Product} from '../../domain/entities/products';
 
 export const updateCreateProduct = async (product: Partial<Product>) => {
-  product.stock = Number(product.stock);
-  product.price = Number(product.price);
+  product.stock = isNaN(Number(product.stock)) ? 0 : Number(product.stock);
+  product.price = isNaN(Number(product.price)) ? 0 : Number(product.price);
 
   if (product.id) {
-    return updateProduct(product);
+    return await updateProduct(product);
   }
 
   throw new Error('Not implemented yet');
@@ -18,10 +18,12 @@ const updateProduct = async (product: Partial<Product>) => {
 
   try {
     const checkedImages = prepareImages(images!);
-    const {} = await tesloApi.patch(`/products/${id}`, {
+    const {data} = await tesloApi.patch(`/products/${id}`, {
       images: checkedImages,
       ...rest,
     });
+
+    return data;
   } catch (error) {
     if (isAxiosError(error)) {
       console.log(error.response?.data);

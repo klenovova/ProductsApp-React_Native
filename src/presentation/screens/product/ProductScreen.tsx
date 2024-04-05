@@ -5,13 +5,12 @@ import {
   ButtonGroup,
   Input,
   Layout,
-  Text,
   useTheme,
 } from '@ui-kitten/components';
-import {useQueryClient} from '@tanstack/react-query';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {StackScreenProps} from '@react-navigation/stack';
 import {RootStackParams} from '../../router/StackNavigator';
-import {Product} from '../../../domain/entities/products';
+import type {Product} from '../../../domain/entities/products';
 import {FlatList, ScrollView} from 'react-native-gesture-handler';
 import {FadeInImage} from '../../components/ui/FadeInImage';
 import {
@@ -20,6 +19,7 @@ import {
 } from '../../../infrastructure/interfaces/teslo-products.response';
 import {CustomIcon} from '../../components/ui/CustomIcon';
 import {Formik} from 'formik';
+import {updateCreateProduct} from '../../../actions/products/update-create-product';
 
 const sizes: Size[] = [Size.Xs, Size.S, Size.M, Size.L, Size.Xl, Size.Xxl];
 const genders: Gender[] = [Gender.Kid, Gender.Men, Gender.Women, Gender.Unisex];
@@ -35,9 +35,24 @@ export const ProductScreen = ({route}: ProductScreenProps) => {
   const productIdRef = useRef(productId);
 
   const product = queryClient.getQueryData<Product>([
-    'products',
+    'product',
     productIdRef.current,
   ]);
+
+  const mutation = useMutation({
+    mutationFn: (data: Product) =>
+      updateCreateProduct({...data, id: productIdRef.current}),
+    onSuccess: (data: Product) => {
+      productIdRef.current = data.id;
+      queryClient.invalidateQueries({
+        queryKey: ['products', 'infinite'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['product', data.id],
+      });
+    },
+  });
 
   const theme = useTheme();
 
@@ -46,7 +61,7 @@ export const ProductScreen = ({route}: ProductScreenProps) => {
   }
 
   return (
-    <Formik initialValues={product} onSubmit={values => console.log(values)}>
+    <Formik initialValues={product} onSubmit={mutation.mutate}>
       {({handleChange, handleSubmit, values, errors, setFieldValue}) => (
         <MainLayout title={values.title} subtitle={`Price: $${values.price}`}>
           <ScrollView style={{flex: 1}}>
@@ -102,6 +117,7 @@ export const ProductScreen = ({route}: ProductScreenProps) => {
                 value={values.price.toString()}
                 style={{flex: 1}}
                 onChangeText={handleChange('price')}
+                keyboardType="numeric"
               />
 
               <Input
@@ -109,6 +125,7 @@ export const ProductScreen = ({route}: ProductScreenProps) => {
                 value={values.stock.toString()}
                 style={{flex: 1}}
                 onChangeText={handleChange('stock')}
+                keyboardType="numeric"
               />
             </Layout>
 
@@ -160,7 +177,8 @@ export const ProductScreen = ({route}: ProductScreenProps) => {
             <Button
               style={{margin: 15}}
               accessoryLeft={<CustomIcon name="save-outline" isWhite />}
-              onPress={() => console.log('Save changes')}>
+              disabled={mutation.isPending}
+              onPress={() => handleSubmit()}>
               Save changes
             </Button>
 
