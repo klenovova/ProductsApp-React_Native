@@ -34,7 +34,10 @@ export const ProductList = ({products, fetchNextPage}: ProductListProps) => {
       keyExtractor={(item, index) => `${item.id}-${index}`}
       renderItem={({item}) => <ProductCard product={item} />}
       ListFooterComponent={() => <Layout style={{height: 150}} />}
-      onEndReached={fetchNextPage}
+      onEndReached={() => {
+        console.log('fetching next page');
+        fetchNextPage();
+      }}
       onEndReachedThreshold={0.8}
       refreshControl={
         <RefreshControl refreshing={isRefreshing} onRefresh={onPullToRefresh} />

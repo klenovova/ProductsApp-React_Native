@@ -7,22 +7,17 @@ import {
   Layout,
   useTheme,
 } from '@ui-kitten/components';
+import {Formik} from 'formik';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {StackScreenProps} from '@react-navigation/stack';
 import {RootStackParams} from '../../router/StackNavigator';
-import type {Product} from '../../../domain/entities/products';
-import {FlatList, ScrollView} from 'react-native-gesture-handler';
-import {FadeInImage} from '../../components/ui/FadeInImage';
-import {
-  Gender,
-  Size,
-} from '../../../infrastructure/interfaces/teslo-products.response';
-import {CustomIcon} from '../../components/ui/CustomIcon';
-import {Formik} from 'formik';
-import {updateCreateProduct} from '../../../actions/products/update-create-product';
+import {Gender, type Product} from '../../../domain/entities/products';
+import {ScrollView} from 'react-native-gesture-handler';
 
-const sizes: Size[] = [Size.Xs, Size.S, Size.M, Size.L, Size.Xl, Size.Xxl];
-const genders: Gender[] = [Gender.Kid, Gender.Men, Gender.Women, Gender.Unisex];
+import {CustomIcon} from '../../components/ui/CustomIcon';
+import {updateCreateProduct} from '../../../actions/products/update-create-product';
+import {ProductSlideShow} from '../../components/products/ProductSlideShow';
+import {genders, sizes} from '../../../config/constants/constants';
 
 interface ProductScreenProps
   extends StackScreenProps<RootStackParams, 'ProductScreen'> {}
@@ -56,28 +51,32 @@ export const ProductScreen = ({route}: ProductScreenProps) => {
 
   const theme = useTheme();
 
-  if (!product) {
-    return <MainLayout title={'Ups..'} subtitle={'Product not found'} />;
-  }
+  const emptyProduct: Product = {
+    id: '',
+    title: 'New Product',
+    description: '',
+    price: 0,
+    images: [],
+    slug: '',
+    gender: Gender.Unisex,
+    sizes: [],
+    stock: 0,
+    tags: [],
+  } as Product;
 
   return (
-    <Formik initialValues={product} onSubmit={mutation.mutate}>
+    <Formik initialValues={product ?? emptyProduct} onSubmit={mutation.mutate}>
       {({handleChange, handleSubmit, values, errors, setFieldValue}) => (
         <MainLayout title={values.title} subtitle={`Price: $${values.price}`}>
           <ScrollView style={{flex: 1}}>
-            <Layout style={{padding: 20}}>
-              <FlatList
-                data={values.images}
-                keyExtractor={item => item}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                renderItem={({item}) => (
-                  <FadeInImage
-                    uri={item}
-                    style={{width: 300, height: 300, marginHorizontal: 7}}
-                  />
-                )}
-              />
+            <Layout
+              style={{
+                padding: 20,
+                marginVertical: 10,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <ProductSlideShow images={values.images} />
             </Layout>
 
             <Layout style={{marginHorizontal: 10}}>
