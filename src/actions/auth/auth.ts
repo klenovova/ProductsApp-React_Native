@@ -25,7 +25,7 @@ export const authLogin = async (email: string, password: string) => {
 
     return returnUserToken(data);
   } catch (error) {
-    console.error(error);
+    console.error(`Something wrong happened in authLogin - ${error}`);
   }
 };
 
@@ -35,7 +35,7 @@ export const authCheckStatus = async () => {
 
     return returnUserToken(data);
   } catch (error) {
-    console.error(error);
+    console.error(`Something wrong happened in authCheckStatus - ${error}`);
     return null;
   }
 };
@@ -54,7 +54,7 @@ export const registerUser = async (
 
     return returnUserToken(data);
   } catch (error) {
-    console.error(error);
+    console.error(`Something wrong happened in registerUser - ${error}`);
     return null;
   }
 };

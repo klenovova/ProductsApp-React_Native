@@ -8,11 +8,13 @@ import {useAuthStore} from '../store/auth/useAuthStore';
 export const AuthProvider = ({children}: PropsWithChildren) => {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
 
-  const {checkStatus, status} = useAuthStore();
+  const {checkStatus, status, user} = useAuthStore();
 
   useEffect(() => {
-    checkStatus();
-  }, [checkStatus]);
+    if (user) {
+      checkStatus();
+    }
+  }, [checkStatus, user]);
 
   useEffect(() => {
     if (status !== 'checking' && status === 'authenticated') {
