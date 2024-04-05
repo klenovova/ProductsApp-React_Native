@@ -3,6 +3,8 @@ import React from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {getProductsByPage} from '../../../actions/products/get-products-by-page';
 import {MainLayout} from '../../layouts/MainLayout';
+import {FullScreenLoader} from '../../components/ui/FullScreenLoader';
+import {ProductList} from '../../components/products/ProductList';
 
 export const HomeScreen = () => {
   const {isLoading, data: products = []} = useQuery({
@@ -13,7 +15,7 @@ export const HomeScreen = () => {
 
   return (
     <MainLayout title="TesloShop - Products" subtitle="Administrative App">
-      <Text>HomeScreen</Text>
+      {isLoading ? <FullScreenLoader /> : <ProductList products={products} />}
     </MainLayout>
   );
 };

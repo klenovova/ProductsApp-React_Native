@@ -58,7 +58,7 @@ export const MainLayout = ({
       />
       <Divider />
 
-      <Layout style={{flex: 1, backgroundColor: 'red'}}>{children}</Layout>
+      <Layout style={{flex: 1}}>{children}</Layout>
     </Layout>
   );
 };
