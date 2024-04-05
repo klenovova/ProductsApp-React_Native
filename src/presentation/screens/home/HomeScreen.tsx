@@ -1,5 +1,5 @@
 import React from 'react';
-import {useInfiniteQuery} from '@tanstack/react-query';
+import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query';
 import {getProductsByPage} from '../../../actions/products/get-products-by-page';
 import {MainLayout} from '../../layouts/MainLayout';
 import {FullScreenLoader} from '../../components/ui/FullScreenLoader';
@@ -12,12 +12,20 @@ export const HomeScreen = () => {
   //   queryFn: () => getProductsByPage(0),
   // });
 
+  const queryClient = useQueryClient();
+
   const {isLoading, data, fetchNextPage} = useInfiniteQuery({
     queryKey: ['products', 'infinite'],
     staleTime: 1000 * 60 * 60, // 1 hour
     initialPageParam: 0,
     queryFn: async ({pageParam}) => {
-      return await getProductsByPage(pageParam);
+      const products = await getProductsByPage(pageParam);
+
+      products.forEach(product => {
+        queryClient.setQueryData(['products', product.id], product);
+      });
+
+      return products;
     },
     getNextPageParam: allPages => allPages.length,
   });
@@ -27,7 +35,10 @@ export const HomeScreen = () => {
       {isLoading ? (
         <FullScreenLoader />
       ) : (
-        <ProductList products={data?.pages.flat() ?? []} fetchNextPage={fetchNextPage} />
+        <ProductList
+          products={data?.pages.flat() ?? []}
+          fetchNextPage={fetchNextPage}
+        />
       )}
     </MainLayout>
   );
