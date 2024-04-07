@@ -41,10 +41,12 @@ export const MainLayout = ({
     if (rightAction === undefined || rightActionIcon === undefined) {
       return null;
     }
-    <TopNavigationAction
-      onPress={rightAction}
-      icon={<CustomIcon name={rightActionIcon} />}
-    />;
+    return (
+      <TopNavigationAction
+        onPress={rightAction}
+        icon={<CustomIcon name={rightActionIcon} />}
+      />
+    );
   };
 
   return (
